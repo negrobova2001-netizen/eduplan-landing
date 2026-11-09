@@ -1,0 +1,938 @@
+
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fdfbf7">
+
+  <title>EduPlan — Волшебство простого планирования</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#fdfbf7',
+            paper: '#f3ead8',
+            blue: '#2b4c7e',
+            red: '#8c3a3a',
+            gold: '#c2a77a',
+            ink: '#37332e',
+            muted: '#82796c'
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Lato', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #fdfbf7;
+      color: #37332e;
+      font-family: 'Lato', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .paper-texture {
+      background-image:
+        radial-gradient(rgba(151, 120, 76, .09) .7px, transparent .7px);
+      background-size: 7px 7px;
+    }
+
+    .vintage-border {
+      border: 1px solid #c2a77a;
+      outline: 1px solid rgba(194, 167, 122, .4);
+      outline-offset: 5px;
+    }
+
+    .ornament {
+      color: #c2a77a;
+      letter-spacing: 8px;
+    }
+
+    .hero-bg {
+      background:
+        radial-gradient(ellipse at 80% 30%, rgba(194,167,122,.13), transparent 45%),
+        #fdfbf7;
+    }
+
+    .vintage-btn {
+      background: #8c3a3a;
+      color: #fffaf0;
+      border: 1px solid #8c3a3a;
+      transition: all .3s ease;
+      box-shadow: 3px 4px 0 rgba(140,58,58,.15);
+    }
+
+    .vintage-btn:hover {
+      background: #713030;
+      transform: translateY(-3px);
+      box-shadow: 4px 7px 0 rgba(140,58,58,.15);
+    }
+
+    .feature-card {
+      background: #fffdf8;
+      border: 1px solid rgba(194,167,122,.65);
+      transition: all .35s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 12px 30px rgba(43,76,126,.09);
+      border-color: #2b4c7e;
+    }
+
+    .parchment {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.4), transparent),
+        #f3ead8;
+      border: 1px solid #c2a77a;
+      box-shadow: 4px 5px 12px rgba(70,50,25,.07);
+      position: relative;
+    }
+
+    .parchment::before {
+      content: '❧';
+      position: absolute;
+      top: 10px;
+      right: 17px;
+      color: #c2a77a;
+      font-size: 27px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: .15s; }
+    .delay-2 { transition-delay: .3s; }
+    .delay-3 { transition-delay: .45s; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      color: #c2a77a;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      width: 65px;
+      height: 1px;
+      background: #c2a77a;
+    }
+
+    .step-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: #c2a77a;
+      line-height: 1;
+    }
+
+    input {
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2b4c7e !important;
+      box-shadow: 0 0 0 3px rgba(43,76,126,.08);
+    }
+
+    ::selection {
+      background: #2b4c7e;
+      color: white;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header class="sticky top-0 z-50 bg-cream/95 backdrop-blur-md border-b border-gold/50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+    <a href="#" class="font-serif text-3xl font-bold text-blue tracking-tight">
+      Edu<span class="text-red">Plan</span>
+      <span class="block text-[9px] tracking-[4px] uppercase text-gold text-center font-sans">
+        Your magical planner
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm text-ink">
+      <a href="#about" class="hover:text-red transition">О платформе</a>
+      <a href="#how" class="hover:text-red transition">Как работает</a>
+      <a href="#features" class="hover:text-red transition">Возможности</a>
+      <a href="#reviews" class="hover:text-red transition">Отзывы</a>
+      <a href="#pricing" class="hover:text-red transition">Тарифы</a>
+    </nav>
+
+    <a href="#start" class="hidden md:inline-block vintage-btn px-6 py-3 text-sm">
+      Начать бесплатно
+    </a>
+
+    <button id="menuBtn"
+      class="md:hidden text-blue text-3xl"
+      aria-label="Открыть меню"
+      aria-expanded="false">
+      ☰
+    </button>
+  </div>
+
+  <nav id="mobileMenu" class="hidden md:hidden bg-cream border-t border-gold/40 px-6 py-5 space-y-4">
+    <a href="#about" class="block">О платформе</a>
+    <a href="#how" class="block">Как работает</a>
+    <a href="#features" class="block">Возможности</a>
+    <a href="#reviews" class="block">Отзывы</a>
+    <a href="#pricing" class="block">Тарифы</a>
+    <a href="#start" class="block text-red font-bold">Начать бесплатно →</a>
+  </nav>
+</header>
+
+
+<!-- ================= HERO ================= -->
+
+<section class="hero-bg paper-texture py-20 md:py-28">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
+
+    <div class="reveal">
+
+      <div class="flex items-center gap-3 mb-7">
+        <span class="h-px w-12 bg-gold"></span>
+        <span class="uppercase tracking-[4px] text-xs text-gold">
+          Магия простого планирования
+        </span>
+      </div>
+
+      <h1 class="text-4xl md:text-6xl leading-tight font-bold text-blue mb-7">
+        Перестаньте тратить вечера на конспекты.
+        <span class="text-red italic">
+          Готовый учебный план — в один клик.
+        </span>
+      </h1>
+
+      <p class="text-lg leading-8 text-muted mb-9 max-w-xl">
+        <strong class="text-blue">EduPlan</strong> — волшебная облачная
+        платформа для педагогов детских садов и школ.
+        В ней уже загружены все образовательные программы по ФГОС.
+        Просто выберите даты, и система сама сформирует план
+        на день, неделю или месяц.
+      </p>
+
+      <a href="#start" class="vintage-btn inline-block px-9 py-5 text-base font-bold">
+        Попробовать 14 дней бесплатно →
+      </a>
+
+      <div class="flex flex-wrap gap-5 mt-6 text-sm text-muted">
+        <span>✓ Без привязки карты</span>
+        <span>✓ Настройка за 5 минут</span>
+      </div>
+
+      <div class="divider mt-12 justify-start text-sm">
+        ✦ ✦ ✦
+      </div>
+
+      <p class="font-serif italic text-blue mt-4">
+        «Больше времени для самого важного — для детей»
+      </p>
+    </div>
+
+    <!-- ГЛАВНАЯ КАРТИНКА -->
+
+    <div class="reveal delay-2">
+      <img
+        src="https://i.ibb.co/FkKn4hmX/magichour-ai-image-2026-11-08-640x480-cmw82b97g003bl5011jjr43xk.png"
+        alt="Учитель"
+        class="w-full h-auto rounded-sm vintage-border shadow-lg object-cover"
+      >
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= PROBLEM ================= -->
+
+<section id="about" class="py-24 bg-[#f5efe4] paper-texture">
+  <div class="max-w-4xl mx-auto px-6 text-center reveal">
+
+    <div class="text-4xl text-gold mb-5">❧</div>
+
+    <p class="uppercase tracking-[4px] text-xs text-red mb-5">
+      Знакомая ситуация?
+    </p>
+
+    <h2 class="text-3xl md:text-5xl text-blue font-bold leading-tight mb-8">
+      Рабочее время должно уходить на детей, а не на бумажки
+    </h2>
+
+    <div class="divider mb-9">✦</div>
+
+    <p class="text-lg md:text-xl leading-9 text-muted">
+      Каждый вечер вы вместо отдыха садитесь за составление планов?
+      Ищете нужные методички, сверяете даты, проверяете соответствие
+      требованиям?
+      <br><br>
+      <strong class="text-red font-serif text-2xl">EduPlan</strong>
+      создан, чтобы навсегда избавить вас от этой рутины.
+    </p>
+
+    <div class="mt-12 vintage-border inline-block px-10 py-6 bg-cream">
+      <p class="font-serif text-xl text-blue italic">
+        Ваше время — самое ценное сокровище.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= HOW IT WORKS ================= -->
+
+<section id="how" class="py-24 bg-cream paper-texture">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="text-center mb-16 reveal">
+      <p class="uppercase tracking-[4px] text-xs text-red mb-5">
+        Просто. Быстро. Волшебно.
+      </p>
+
+      <h2 class="text-3xl md:text-5xl text-blue font-bold mb-6">
+        Планирование, которое экономит 10 часов в неделю
+      </h2>
+
+      <div class="divider">✦ ❧ ✦</div>
+    </div>
+
+    <!-- ДВЕ КОЛОНКИ: ШАГИ И КОМПАКТНАЯ ИЛЛЮСТРАЦИЯ -->
+
+    <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- ЛЕВАЯ КОЛОНКА: ТРИ ШАГА -->
+
+      <div class="space-y-10">
+
+        <div class="flex gap-6 items-start reveal">
+          <div class="step-number shrink-0">01</div>
+
+          <div>
+            <div class="text-3xl mb-3">🏫</div>
+
+            <h3 class="text-2xl text-blue font-bold mb-3">
+              Выбираете класс или группу
+            </h3>
+
+            <p class="text-muted leading-7">
+              Система уже знает вашу программу.
+              Вам не нужно искать документы и методические материалы
+              вручную.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-6 items-start reveal delay-1">
+          <div class="step-number shrink-0">02</div>
+
+          <div>
+            <div class="text-3xl mb-3">📅</div>
+
+            <h3 class="text-2xl text-blue font-bold mb-3">
+              Вводите даты
+            </h3>
+
+            <p class="text-muted leading-7">
+              Указываете начало учебной недели или месяца.
+              Умный календарь поможет организовать расписание.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-6 items-start reveal delay-2">
+          <div class="step-number shrink-0">03</div>
+
+          <div>
+            <div class="text-3xl mb-3">✨</div>
+
+            <h3 class="text-2xl text-blue font-bold mb-3">
+              Получаете готовый план
+            </h3>
+
+            <p class="text-muted leading-7">
+              Нажимаете «Сгенерировать» и получаете документ
+              с целями и задачами.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ПРАВАЯ КОЛОНКА: КОМПАКТНАЯ КАРТИНКА -->
+
+      <div class="reveal delay-2 flex justify-center items-center">
+
+        <div class="w-full max-w-md mx-auto p-3 bg-[#f3ead8] rounded-2xl border border-gold/70 shadow-lg">
+
+          <img
+            src="https://i.ibb.co/Jj4yhZzZ/magichour-ai-image-2026-11-08-640x352-cmw828uw50pjoo2018b8mas7i.png"
+            alt="Волшебный план"
+            class="block w-full h-auto max-w-md mx-auto rounded-xl object-cover shadow-md"
+          >
+
+          <div class="text-center pt-5 pb-3">
+            <div class="ornament text-xl mb-2">✧ ❧ ✧</div>
+
+            <p class="font-serif italic text-blue text-lg">
+              Планирование с любовью и вдохновением
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="text-center mt-16 reveal">
+      <a href="#start" class="vintage-btn inline-block px-10 py-4">
+        Попробовать магию →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= FEATURES ================= -->
+
+<section id="features" class="py-24 bg-[#f5efe4] paper-texture">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="text-center mb-16 reveal">
+      <p class="uppercase tracking-[4px] text-xs text-red mb-5">
+        Всё необходимое в одном месте
+      </p>
+
+      <h2 class="text-3xl md:text-5xl text-blue font-bold mb-6">
+        Всё, что нужно современному педагогу
+      </h2>
+
+      <div class="divider">✧ ❧ ✧</div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div class="feature-card p-8 text-center reveal">
+        <div class="text-5xl mb-6">📚</div>
+
+        <h3 class="text-xl text-blue font-bold mb-4">
+          Библиотека программ
+        </h3>
+
+        <p class="text-muted leading-7 text-sm">
+          База готовых планов для ФГОС ДО и НОО.
+          Все необходимые материалы под рукой.
+        </p>
+
+        <div class="ornament mt-6">✦ ❧ ✦</div>
+      </div>
+
+      <div class="feature-card p-8 text-center reveal delay-1">
+        <div class="text-5xl mb-6">🗓️</div>
+
+        <h3 class="text-xl text-blue font-bold mb-4">
+          Умный календарь
+        </h3>
+
+        <p class="text-muted leading-7 text-sm">
+          Автоматический перенос тем с учетом
+          праздников и каникул.
+        </p>
+
+        <div class="ornament mt-6">✦ ❧ ✦</div>
+      </div>
+
+      <div class="feature-card p-8 text-center reveal delay-2">
+        <div class="text-5xl mb-6">✒️</div>
+
+        <h3 class="text-xl text-blue font-bold mb-4">
+          Конструктор занятий
+        </h3>
+
+        <p class="text-muted leading-7 text-sm">
+          Возможность добавить свои материалы
+          прямо в готовый план.
+        </p>
+
+        <div class="ornament mt-6">✦ ❧ ✦</div>
+      </div>
+
+      <div class="feature-card p-8 text-center reveal delay-3">
+        <div class="text-5xl mb-6">🤝</div>
+
+        <h3 class="text-xl text-blue font-bold mb-4">
+          Командная работа
+        </h3>
+
+        <p class="text-muted leading-7 text-sm">
+          Методисты могут проверять планы
+          педагогов прямо в системе.
+        </p>
+
+        <div class="ornament mt-6">✦ ❧ ✦</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= REVIEWS ================= -->
+
+<section id="reviews" class="py-24 bg-cream paper-texture">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="text-center mb-16 reveal">
+      <p class="uppercase tracking-[4px] text-xs text-red mb-5">
+        Истории наших пользователей
+      </p>
+
+      <h2 class="text-3xl md:text-5xl text-blue font-bold mb-6">
+        Добрые слова от педагогов
+      </h2>
+
+      <div class="divider">✦ ❧ ✦</div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-10">
+
+      <!-- ОТЗЫВ АННЫ -->
+
+      <div class="parchment p-9 md:p-12 reveal">
+
+        <div class="text-gold text-3xl mb-5">★★★★★</div>
+
+        <p class="font-serif text-xl md:text-2xl italic leading-9 text-blue mb-8">
+          «Раньше на планирование недели у меня уходило воскресенье.
+          Теперь я нажимаю одну кнопку и пью кофе.
+          Это магия!»
+        </p>
+
+        <div class="border-t border-gold/50 pt-5 flex items-center gap-4">
+
+          <img
+            src="https://i.ibb.co/TMz0cjk7/magichour-ai-image-2026-11-08-640x640-cmw82a67k002pl501nicusdc4.png"
+            alt="Анна"
+            class="w-16 h-16 rounded-full object-cover border-2 border-[#c2a77a]"
+          >
+
+          <div>
+            <p class="font-bold text-red">Анна</p>
+            <p class="text-sm text-muted">Воспитатель</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ОТЗЫВ ЕЛЕНЫ -->
+
+      <div class="parchment p-9 md:p-12 reveal delay-1">
+
+        <div class="text-gold text-3xl mb-5">★★★★★</div>
+
+        <p class="font-serif text-xl md:text-2xl italic leading-9 text-blue mb-8">
+          «Как методист, я вижу все планы своих педагогов
+          в едином стандарте. Проверки проходят в разы быстрее».
+        </p>
+
+        <div class="border-t border-gold/50 pt-5 flex items-center gap-4">
+
+          <img
+            src="https://i.ibb.co/HDNX5sKh/magichour-ai-image-2026-11-08-640x640-cmw82ct8m004gl5013u2hhu28.png"
+            alt="Елена"
+            class="w-16 h-16 rounded-full object-cover border-2 border-[#c2a77a]"
+          >
+
+          <div>
+            <p class="font-bold text-red">Елена</p>
+            <p class="text-sm text-muted">Старший методист</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= PRICING ================= -->
+
+<section id="pricing" class="py-24 bg-[#f5efe4] paper-texture">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="text-center mb-16 reveal">
+      <p class="uppercase tracking-[4px] text-xs text-red mb-5">
+        Выберите свой путь
+      </p>
+
+      <h2 class="text-3xl md:text-5xl text-blue font-bold mb-6">
+        Простые и понятные тарифы
+      </h2>
+
+      <div class="divider">✧ ❧ ✧</div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 items-stretch">
+
+      <!-- START -->
+
+      <div class="feature-card p-9 text-center reveal flex flex-col">
+        <div class="text-4xl mb-5">🌱</div>
+
+        <h3 class="text-2xl text-blue font-bold mb-3">Старт</h3>
+
+        <p class="text-muted text-sm mb-6">
+          Для знакомства с EduPlan
+        </p>
+
+        <div class="font-serif text-5xl text-blue mb-7">
+          0 ₽
+        </div>
+
+        <div class="divider mb-7">✦</div>
+
+        <ul class="text-muted text-sm space-y-4 mb-9 text-left flex-1">
+          <li>✓ Базовые планы</li>
+          <li>✓ Доступ на 1 месяц</li>
+          <li>✓ Знакомство с платформой</li>
+        </ul>
+
+        <a href="#start" class="border border-blue text-blue py-4 hover:bg-blue hover:text-white transition">
+          Начать бесплатно
+        </a>
+      </div>
+
+      <!-- PRO -->
+
+      <div class="feature-card p-9 text-center reveal delay-1 flex flex-col relative border-2 border-red">
+
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red text-white text-xs tracking-widest px-5 py-2">
+          ПОПУЛЯРНЫЙ
+        </div>
+
+        <div class="text-4xl mb-5">⭐</div>
+
+        <h3 class="text-2xl text-blue font-bold mb-3">Профи</h3>
+
+        <p class="text-muted text-sm mb-6">
+          Для тех, кто ценит своё время
+        </p>
+
+        <div class="font-serif text-5xl text-red mb-7">
+          290 ₽
+          <span class="text-base text-muted">/мес</span>
+        </div>
+
+        <div class="divider mb-7">✦</div>
+
+        <ul class="text-muted text-sm space-y-4 mb-9 text-left flex-1">
+          <li>✓ Полный доступ к программам</li>
+          <li>✓ Умный календарь</li>
+          <li>✓ Экспорт в Word / PDF</li>
+          <li>✓ Конструктор занятий</li>
+          <li>✓ Командная работа</li>
+        </ul>
+
+        <a href="#start" class="vintage-btn py-4">
+          Выбрать Профи
+        </a>
+      </div>
+
+      <!-- SCHOOL -->
+
+      <div class="feature-card p-9 text-center reveal delay-2 flex flex-col">
+        <div class="text-4xl mb-5">🏰</div>
+
+        <h3 class="text-2xl text-blue font-bold mb-3">
+          Школа / Детский сад
+        </h3>
+
+        <p class="text-muted text-sm mb-6">
+          Для целых образовательных учреждений
+        </p>
+
+        <div class="font-serif text-3xl text-blue mb-7">
+          Индивидуально
+        </div>
+
+        <div class="divider mb-7">✦</div>
+
+        <ul class="text-muted text-sm space-y-4 mb-9 text-left flex-1">
+          <li>✓ Общий доступ для команды</li>
+          <li>✓ Инструменты методиста</li>
+          <li>✓ Контроль планирования</li>
+          <li>✓ Индивидуальные условия</li>
+        </ul>
+
+        <a href="#start" class="border border-blue text-blue py-4 hover:bg-blue hover:text-white transition">
+          Обсудить условия
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= FINAL CTA ================= -->
+
+<section id="start" class="py-24 bg-blue paper-texture relative overflow-hidden">
+
+  <div class="max-w-3xl mx-auto px-6 text-center reveal">
+
+    <div class="text-5xl text-gold mb-7">✧</div>
+
+    <p class="uppercase tracking-[4px] text-xs text-gold mb-5">
+      Время для новой истории
+    </p>
+
+    <h2 class="text-4xl md:text-6xl text-cream font-bold leading-tight mb-7">
+      Подарите себе вечер без конспектов
+    </h2>
+
+    <p class="text-cream/80 text-lg leading-8 mb-12">
+      Начните пользоваться EduPlan уже сегодня.
+      Пусть планирование станет лёгким, а вечера —
+      свободными для вас и вашей семьи.
+    </p>
+
+    <div class="bg-cream p-8 md:p-12 max-w-lg mx-auto vintage-border text-left">
+
+      <h3 class="text-2xl md:text-3xl text-blue text-center font-bold mb-3">
+        Начните своё путешествие
+      </h3>
+
+      <p class="text-center text-muted text-sm mb-8">
+        Заполните форму, и мы свяжемся с вами.
+      </p>
+
+      <form id="signupForm" class="space-y-5">
+
+        <div>
+          <label for="name" class="block text-sm text-blue font-bold mb-2">
+            Ваше имя
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Как к вам обращаться?"
+            required
+            autocomplete="name"
+            class="w-full bg-white border border-gold/70 px-5 py-4 text-ink placeholder:text-gray-400"
+          >
+        </div>
+
+        <div>
+          <label for="phone" class="block text-sm text-blue font-bold mb-2">
+            Номер телефона
+          </label>
+
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="+7 (___) ___-__-__"
+            required
+            autocomplete="tel"
+            class="w-full bg-white border border-gold/70 px-5 py-4 text-ink placeholder:text-gray-400"
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="vintage-btn w-full py-5 font-bold text-base"
+        >
+          Начать пользоваться →
+        </button>
+
+        <p class="text-xs text-muted text-center leading-5">
+          Нажимая кнопку, вы соглашаетесь на обработку
+          персональных данных в соответствии с политикой конфиденциальности.
+        </p>
+
+        <p id="formMessage" class="hidden text-center text-sm text-blue font-bold" role="status"></p>
+
+      </form>
+
+    </div>
+
+    <div class="text-gold mt-12 text-2xl tracking-[10px]">
+      ✧ ❧ ✧
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="bg-[#f3ead8] py-10 border-t border-gold/60">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-7">
+
+      <div class="text-center md:text-left">
+        <div class="font-serif text-3xl font-bold text-blue">
+          Edu<span class="text-red">Plan</span>
+        </div>
+
+        <p class="text-xs text-muted mt-2">
+          Магия простого планирования.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-6 text-sm text-muted">
+        <a href="#about" class="hover:text-red">О платформе</a>
+        <a href="#pricing" class="hover:text-red">Тарифы</a>
+        <a href="#start" class="hover:text-red">Контакты</a>
+        <a href="#" class="hover:text-red">Политика конфиденциальности</a>
+      </div>
+
+      <p class="text-xs text-muted">
+        © 2026 EduPlan. Все права защищены.
+      </p>
+
+    </div>
+
+    <div class="divider mt-9">✦</div>
+
+    <p class="text-center text-xs text-muted mt-5 font-serif italic">
+      Made with love for teachers
+    </p>
+
+  </div>
+</footer>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+  // Мобильное меню
+
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  menuBtn.addEventListener('click', () => {
+    const isOpen = !mobileMenu.classList.contains('hidden');
+
+    mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!isOpen));
+    menuBtn.textContent = isOpen ? '☰' : '✕';
+  });
+
+  // Закрытие меню после перехода
+
+  document.querySelectorAll('#mobileMenu a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.textContent = '☰';
+    });
+  });
+
+  // Анимация появления элементов при скролле
+
+  const observer = new IntersectionObserver((entries) => {
+
+    entries.forEach(entry => {
+
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+
+    });
+
+  }, {
+    threshold: 0.12
+  });
+
+  document.querySelectorAll('.reveal').forEach(element => {
+    observer.observe(element);
+  });
+
+  // Демонстрационная обработка формы
+
+  const signupForm = document.getElementById('signupForm');
+  const formMessage = document.getElementById('formMessage');
+
+  signupForm.addEventListener('submit', (event) => {
+
+    event.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !phone) {
+      return;
+    }
+
+    formMessage.textContent =
+      'Спасибо, ' + name + '! Форма заполнена. Подключите систему обработки заявок для отправки данных.';
+
+    formMessage.classList.remove('hidden');
+
+    // Здесь необходимо подключить API, CRM
+    // или серверный обработчик формы.
+
+  });
+
+</script>
+
+</body>
+</html>
